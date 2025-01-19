@@ -9,6 +9,6 @@
     <color name="orange">#F89B10</color>
     <color name="grey">#A5A5A5</color>
 
-    <color name="activity_background">#FFFFFF</color>
-    <color name="text_color">#111111</color>
+    <color name="activity_background">#111111</color>
+    <color name="text_color">#FFFFFF</color>
 </resources>
