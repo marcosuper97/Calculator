@@ -333,19 +333,12 @@
         app:layout_constraintTop_toBottomOf="@id/top_row_five" />
 
     <TextView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintVertical_weight="1"
+        android:id="@+id/count"
+        style="@style/resultStyle"
         app:layout_constraintTop_toBottomOf="@id/top_result"
         app:layout_constraintBottom_toTopOf="@id/bottom_result"
         app:layout_constraintStart_toEndOf="@id/start_column_one"
         app:layout_constraintEnd_toStartOf="@id/end_result"
-        android:gravity="end||center"
-        tools:text = "129 900"
-        android:fontFamily="@font/ys_display_light"
-        android:textColor="@color/white"
-        android:textSize="90sp"
-        android:maxLines="1"/>
+        tools:text = "129 900"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
