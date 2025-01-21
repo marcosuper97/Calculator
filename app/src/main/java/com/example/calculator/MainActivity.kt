@@ -1,6 +1,7 @@
 package com.example.calculator
 
 import android.os.Bundle
+import android.widget.HorizontalScrollView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -25,6 +26,11 @@ class MainActivity : AppCompatActivity() {
 
         var count: String = "0"
         binding.count.text = count
+        binding.scrollCount.viewTreeObserver.addOnGlobalLayoutListener {
+            binding.scrollCount.post {
+                binding.scrollCount.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
+            }
+        }
 
         fun stringFormating(count: String): String {
             if (count.length == 4 && !count.contains(".")) {
@@ -71,10 +77,10 @@ class MainActivity : AppCompatActivity() {
             } else return count
         }
 
-        fun textSizeFormating(count:String) {
+        fun textSizeFormating(count: String) {
             if (count.length >= 7) {
                 binding.count.textSize = 65.0F
-            }else binding.count.textSize = 90.0F
+            } else binding.count.textSize = 90.0F
         }
 
 
@@ -82,7 +88,7 @@ class MainActivity : AppCompatActivity() {
             if (count == "0") {
                 count = number
                 binding.count.text = stringFormating(count)
-            }else if (count.length < 10) { // Ограничение длины
+            } else if (count.length < 100) { // Ограничение длины
                 count += number
                 binding.count.text = stringFormating(count)
                 textSizeFormating(count)
@@ -98,24 +104,7 @@ class MainActivity : AppCompatActivity() {
             textSizeFormating(count)
         }
 
-        binding.one.setOnClickListener() {
-            appendNumber("1")
-            it.animate()
-                .scaleX(0.9f)
-                .scaleY(0.9f)
-                .alpha(0.7f)
-                .setDuration(100)
-                .withEndAction {
-                    // Возврат к исходному состоянию
-                    it.animate()
-                        .scaleX(1.0f)
-                        .scaleY(1.0f)
-                        .alpha(1.0f)
-                        .setDuration(100)
-                        .start()
-                }
-                .start()
-        }
+        binding.one.setOnClickListener() { appendNumber("1") }
         binding.two.setOnClickListener() { appendNumber("2") }
         binding.three.setOnClickListener() { appendNumber("3") }
         binding.four.setOnClickListener() { appendNumber("4") }
@@ -128,5 +117,4 @@ class MainActivity : AppCompatActivity() {
         binding.point.setOnClickListener() { appendNumber(".") }
         binding.ac.setOnClickListener() { cleanCount() }
     }
-
 }
