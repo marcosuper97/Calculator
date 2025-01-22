@@ -3,6 +3,7 @@ package com.example.calculator
 import android.os.Bundle
 import android.widget.HorizontalScrollView
 import android.widget.Toast
+import android.widget.Toast.LENGTH_LONG
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -24,6 +25,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val spaceController = SpaceController()
+
         var count: String = "0"
         binding.count.text = count
         binding.scrollCount.viewTreeObserver.addOnGlobalLayoutListener {
@@ -32,71 +35,36 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        fun stringFormating(count: String): String {
-            if (count.length == 4 && !count.contains(".")) {
-                val index = 1
-                val reformatCount = StringBuilder(count)
-                reformatCount.insert(index, " ")
-                return reformatCount.toString()
-            } else if (count.length == 5 && !count.contains(".")) {
-                val index = 2
-                count.replace(" ", "")
-                val reformatCount = StringBuilder(count)
-                reformatCount.insert(index, " ")
-                return reformatCount.toString()
-            } else if (count.length == 6 && !count.contains(".")) {
-                val index = 3
-                count.replace(" ", "")
-                val reformatCount = StringBuilder(count)
-                reformatCount.insert(index, " ")
-                return reformatCount.toString()
-            } else if (count.length == 7 && !count.contains(".")) {
-                val indices = listOf(1, 4)
-                count.replace(" ", "")
-                val reformatCount = StringBuilder(count)
-                for (index in indices.sortedDescending()) {
-                    reformatCount.insert(index, " ") // Вставляем пробел
-                }
-                return reformatCount.toString()
-            } else if (count.length == 8 && !count.contains(".")) {
-                val indices = listOf(2, 5)
-                count.replace(" ", "")
-                val reformatCount = StringBuilder(count)
-                for (index in indices.sortedDescending()) {
-                    reformatCount.insert(index, " ") // Вставляем пробел
-                }
-                return reformatCount.toString()
-            } else if (count.length == 9 && !count.contains(".")) {
-                val indices = listOf(3, 6)
-                count.replace(" ", "")
-                val reformatCount = StringBuilder(count)
-                for (index in indices.sortedDescending()) {
-                    reformatCount.insert(index, " ") // Вставляем пробел
-                }
-                return reformatCount.toString()
-            } else return count
-        }
-
         fun textSizeFormating(count: String) {
             if (count.length >= 7) {
-                binding.count.textSize = 65.0F
+                binding.count.textSize = 60.0F
             } else binding.count.textSize = 90.0F
         }
 
-
         fun appendNumber(number: String) {
-            if (count == "0") {
-                count = number
-                binding.count.text = stringFormating(count)
-            } else if (count.length < 100) { // Ограничение длины
-                count += number
-                binding.count.text = stringFormating(count)
-                textSizeFormating(count)
+            if (number.contains(".")) {
+                if (count == "0") {
+                    count += number
+                    binding.count.text = count
+                } else if (!count.contains(".")) {
+                    count += number
+                    binding.count.text = count
+                }
             } else {
-                Toast.makeText(this, "Maximum length reached", Toast.LENGTH_SHORT).show()
+                if (count == "0") {
+                    count = number
+                    binding.count.text = count
+                } else if (count.length <= 14 && !count.contains(".")) { // Ограничение длины
+                    count += number
+                    binding.count.text = spaceController.start(count, count.length)
+                    textSizeFormating(count)
+                } else if (count.length <= 25 && count.contains(".")) {
+                    count += number
+                    binding.count.text = count
+                    textSizeFormating(count)
+                } else binding.count.text = "Бу! Испугался?"
             }
         }
-
 
         fun cleanCount() {
             count = "0"
