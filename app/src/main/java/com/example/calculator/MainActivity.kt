@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
 
         fun textSizeFormating(count: String) {
             if (count.length >= 7) {
-                binding.count.textSize = 60.0F
+                binding.count.textSize = 65.0F
             } else binding.count.textSize = 90.0F
         }
 
@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
                     count += number
                     binding.count.text = count
                     textSizeFormating(count)
-                } else binding.count.text = "Бу! Испугался?"
+                } else Toast.makeText(this, "Предельное значение", LENGTH_LONG).show()
             }
         }
 
