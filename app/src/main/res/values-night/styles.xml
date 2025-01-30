@@ -51,4 +51,5 @@
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">none</item>
     </style>
+
 </resources>
