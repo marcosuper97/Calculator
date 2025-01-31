@@ -1,5 +1,6 @@
 package com.example.calculator
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -16,7 +17,7 @@ import com.example.calculator.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    lateinit var countToTokenizer: String
+    lateinit var countToTokenizer: MutableList<String>
     private val handler = Handler(Looper.getMainLooper())
     lateinit var count: String
 
@@ -33,7 +34,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val spaceController = SpaceController()
-        countToTokenizer = ""
+        countToTokenizer = mutableListOf()
         count = "0"
         binding.count.text = count
         binding.scrollCount.viewTreeObserver.addOnGlobalLayoutListener {
@@ -51,25 +52,30 @@ class MainActivity : AppCompatActivity() {
         fun appendNumber(number: String) {
             if (number.contains(".")) {
                 if (count == "0") {
+                    countToTokenizer.add(number)
                     count += number
                     binding.count.text = count
                 } else if (!count.contains(".")) {
+                    countToTokenizer.add(number)
                     count += number
                     binding.count.text = count
                 }
             } else {
                 if (count == "0") {
+                    countToTokenizer.add(number)
                     count = number
                     binding.count.text = count
                 } else if (count.length <= 14 && !count.contains(".")) { // Ограничение длины
+                    countToTokenizer.add(number)
                     count += number
                     binding.count.text = spaceController.start(count)
                     textSizeFormating(count)
                 } else if (count.length <= 25 && count.contains(".")) {
+                    countToTokenizer.add(number)
                     count += number
                     binding.count.text = count
                     textSizeFormating(count)
-                } else Toast.makeText(this, "Предельное значение", LENGTH_LONG).show()
+                } else Toast.makeText(this, countToTokenizer.toString(), LENGTH_LONG).show()
             }
         }
 
@@ -114,31 +120,43 @@ class MainActivity : AppCompatActivity() {
             handler.post { runnable.run() }
         }
         binding.percent.setOnClickListener() {
-            countToTokenizer = "$count%"
+            countToTokenizer.add("%")
             val runnable = Runnable {
                 exceptionButton(binding.percent)
             }
             handler.post { runnable.run() }
         }
-        binding.divide.setOnClickListener(){
-
+        binding.divide.setOnClickListener() {
+            val runnable = Runnable {
+                exceptionButton(binding.divide)
+            }
+            handler.post { runnable.run() }
         }
-        binding.multiply.setOnClickListener(){
-
+        binding.multiply.setOnClickListener() {
+            val runnable = Runnable {
+                exceptionButton(binding.multiply)
+            }
+            handler.post { runnable.run() }
         }
-        binding.minus.setOnClickListener(){
-
+        binding.minus.setOnClickListener() {
+            val runnable = Runnable {
+                exceptionButton(binding.minus)
+            }
+            handler.post { runnable.run() }
         }
-        binding.plus.setOnClickListener(){
-
+        binding.plus.setOnClickListener() {
+            val runnable = Runnable {
+                exceptionButton(binding.plus)
+            }
+            handler.post { runnable.run() }
         }
-        binding.equal.setOnClickListener(){
+        binding.equal.setOnClickListener() {
 
         }
     }
 
     private fun cleanCount() {
-        countToTokenizer = DEF_COUNT_TOKENIZER
+        countToTokenizer.clear()
         count = DEF_COUNT
         binding.count.text = count
         textSizeFormating(count)
@@ -156,8 +174,7 @@ class MainActivity : AppCompatActivity() {
             binding.divide,
             binding.multiply,
             binding.minus,
-            binding.plus,
-            binding.equal
+            binding.plus
         )
 
         if (listActions.contains(view)) {
@@ -168,45 +185,76 @@ class MainActivity : AppCompatActivity() {
             binding.ac -> {
                 listActions.forEach { view ->
                     view.alpha = 1F
+                    view.isEnabled = true
                 }
                 cleanCount()
             }
 
             binding.plusOrMinus -> {
+                if (!countToTokenizer.contains(R.id.plus_or_minus.toString())) {
+                    listActions.forEach { view ->
+                        view.alpha = 0.5F
+                    }
+                    countToTokenizer.add("+/-")
+                    (TODO("ПОДУМАТЬ НАД РЕАЛИЩАЦИЕЙ"))
+                }
             }
 
             binding.percent -> {
-                listActions.forEach { view ->
-                    view.alpha = 0.4F
+                if (!countToTokenizer.contains(R.id.percent.toString())) {
+                    listActions.forEach { view ->
+                        view.alpha = 0.5F
+                        view.isEnabled = false
+                    }
+                    countToTokenizer.add("%")
                 }
             }
 
             binding.divide -> {
-                listActions.forEach { view ->
-                    view.alpha = 0.4F
+                if (!countToTokenizer.contains(R.id.divide.toString())) {
+                    listActions.forEach { view ->
+                        view.alpha = 0.5F
+                        view.isEnabled = false
+                    }
+                    countToTokenizer.add("/")
                 }
             }
+
             binding.multiply -> {
-                listActions.forEach { view ->
-                    view.alpha = 0.4F
+                if (!countToTokenizer.contains(R.id.multiply.toString())) {
+                    listActions.forEach { view ->
+                        view.alpha = 0.5F
+                        view.isEnabled = false
+                    }
+                    countToTokenizer.add("*")
                 }
             }
+
             binding.minus -> {
-                listActions.forEach { view ->
-                    view.alpha = 0.4F
+                if (!countToTokenizer.contains(R.id.minus.toString())) {
+                    listActions.forEach { view ->
+                        view.alpha = 0.5F
+                        view.isEnabled = false
+                    }
+                    countToTokenizer.add("-")
                 }
             }
+
             binding.plus -> {
-                listActions.forEach { view ->
-                    view.alpha = 0.4F
+                if (!countToTokenizer.contains(R.id.plus.toString()) && countToTokenizer.isNotEmpty()) {
+                    listActions.forEach { view ->
+                        view.alpha = 0.5F
+                        view.isEnabled = false
+                    }
+                    countToTokenizer.add("+")
                 }
             }
+
             binding.equal -> {}
         }
     }
 
     companion object {
         private const val DEF_COUNT = "0"
-        private const val DEF_COUNT_TOKENIZER = "0"
     }
 }
