@@ -176,7 +176,7 @@
 
     <TextView
         android:id="@+id/percent"
-        style="@style/greyButton"
+        style="@style/orangeButton"
         android:text="@string/percent"
         app:layout_constraintBottom_toTopOf="@id/bottom_row_one"
         app:layout_constraintEnd_toStartOf="@id/end_column_three"
