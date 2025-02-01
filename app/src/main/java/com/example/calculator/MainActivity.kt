@@ -1,5 +1,6 @@
 package com.example.calculator
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -9,17 +10,18 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.calculator.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    lateinit var countToTokenizer: String
     private val handler = Handler(Looper.getMainLooper())
-    lateinit var count: String
-
+    private lateinit var count: String
+    private lateinit var calculator: Calculator
+    private lateinit var firstCount: Number
+    private lateinit var secondCount: Number
+    private var sign = DEF_STR
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -29,11 +31,12 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        calculator = Calculator()
+        firstCount = 0
+        secondCount = 0
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         val spaceController = SpaceController()
-        countToTokenizer = ""
         count = "0"
         binding.count.text = count
         binding.scrollCount.viewTreeObserver.addOnGlobalLayoutListener {
@@ -61,7 +64,7 @@ class MainActivity : AppCompatActivity() {
                 if (count == "0") {
                     count = number
                     binding.count.text = count
-                } else if (count.length <= 14 && !count.contains(".")) { // Ограничение длины
+                } else if (count.length <= 14 && !count.contains(".")) {
                     count += number
                     binding.count.text = spaceController.start(count)
                     textSizeFormating(count)
@@ -69,7 +72,7 @@ class MainActivity : AppCompatActivity() {
                     count += number
                     binding.count.text = count
                     textSizeFormating(count)
-                } else Toast.makeText(this, "Предельное значение", LENGTH_LONG).show()
+                }
             }
         }
 
@@ -114,32 +117,44 @@ class MainActivity : AppCompatActivity() {
             handler.post { runnable.run() }
         }
         binding.percent.setOnClickListener() {
-            countToTokenizer = "$count%"
             val runnable = Runnable {
                 exceptionButton(binding.percent)
             }
             handler.post { runnable.run() }
         }
-        binding.divide.setOnClickListener(){
-
+        binding.divide.setOnClickListener() {
+            val runnable = Runnable {
+                exceptionButton(binding.divide)
+            }
+            handler.post { runnable.run() }
         }
-        binding.multiply.setOnClickListener(){
-
+        binding.multiply.setOnClickListener() {
+            val runnable = Runnable {
+                exceptionButton(binding.multiply)
+            }
+            handler.post { runnable.run() }
         }
-        binding.minus.setOnClickListener(){
-
+        binding.minus.setOnClickListener() {
+            val runnable = Runnable {
+                exceptionButton(binding.minus)
+            }
+            handler.post { runnable.run() }
         }
-        binding.plus.setOnClickListener(){
-
+        binding.plus.setOnClickListener() {
+            val runnable = Runnable {
+                exceptionButton(binding.plus)
+            }
+            handler.post { runnable.run() }
         }
-        binding.equal.setOnClickListener(){
+        binding.equal.setOnClickListener() {
 
         }
     }
 
     private fun cleanCount() {
-        countToTokenizer = DEF_COUNT_TOKENIZER
         count = DEF_COUNT
+        firstCount = 0
+        secondCount = 0
         binding.count.text = count
         textSizeFormating(count)
     }
@@ -156,8 +171,7 @@ class MainActivity : AppCompatActivity() {
             binding.divide,
             binding.multiply,
             binding.minus,
-            binding.plus,
-            binding.equal
+            binding.plus
         )
 
         if (listActions.contains(view)) {
@@ -166,47 +180,122 @@ class MainActivity : AppCompatActivity() {
 
         when (view) {
             binding.ac -> {
-                listActions.forEach { view ->
-                    view.alpha = 1F
-                }
                 cleanCount()
             }
 
             binding.plusOrMinus -> {
+                if (!count.contains("-") && count != "0") {
+                    count = "-".plus(count)
+                } else count.replace("-", "")
             }
 
+
             binding.percent -> {
-                listActions.forEach { view ->
-                    view.alpha = 0.4F
+                if (firstCount != 0 && count != "0") {
+                    secondCount = count.toDouble()
+                    count = calculator.start(firstCount, secondCount, sign)
+                    binding.count.text = count
+                    textSizeFormating(count)
+                    firstCount = count.toDouble()
+                    secondCount = 0
+                    sign = "%"
+                } else if (firstCount == 0 && count != "0") {
+                    sign = "%"
+                    firstCount = count.toDouble()
+                    count = DEF_COUNT
+                    binding.count.text = count
                 }
             }
 
             binding.divide -> {
-                listActions.forEach { view ->
-                    view.alpha = 0.4F
+                if (firstCount != 0 && count != "0") {
+                    secondCount = count.toDouble()
+                    count = calculator.start(firstCount, secondCount, sign)
+                    binding.count.text = count
+                    textSizeFormating(count)
+                    firstCount = count.toDouble()
+                    secondCount = 0
+                    sign = "/"
+                } else if (firstCount == 0 && count != "0") {
+                    sign = "/"
+                    firstCount = count.toDouble()
+                    count = DEF_COUNT
+                    binding.count.text = count
                 }
             }
+
             binding.multiply -> {
-                listActions.forEach { view ->
-                    view.alpha = 0.4F
+                if (firstCount != 0 && count != "0") {
+                    secondCount = count.toDouble()
+                    count = calculator.start(firstCount, secondCount, sign)
+                    binding.count.text = count
+                    textSizeFormating(count)
+                    firstCount = count.toDouble()
+                    secondCount = 0
+                    sign = "*"
+                } else if (firstCount == 0 && count != "0") {
+                    sign = "*"
+                    firstCount = count.toDouble()
+                    count = DEF_COUNT
+                    binding.count.text = count
                 }
             }
+
             binding.minus -> {
-                listActions.forEach { view ->
-                    view.alpha = 0.4F
+                if (firstCount != 0 && count != "0") {
+                    secondCount = count.toDouble()
+                    count = calculator.start(firstCount, secondCount, sign)
+                    binding.count.text = count
+                    textSizeFormating(count)
+                    firstCount = count.toDouble()
+                    secondCount = 0
+                    sign = "-"
+                } else if (firstCount == 0 && count != "0") {
+                    sign = "-"
+                    firstCount = count.toDouble()
+                    count = DEF_COUNT
+                    binding.count.text = count
                 }
             }
+
             binding.plus -> {
-                listActions.forEach { view ->
-                    view.alpha = 0.4F
+                if (firstCount != 0 && count != "0") {
+                    secondCount = count.toDouble()
+                    count = calculator.start(firstCount, secondCount, sign)
+                    binding.count.text = count
+                    textSizeFormating(count)
+                    firstCount = count.toDouble()
+                    secondCount = 0
+                    sign = "+"
+                } else if (firstCount == 0 && count != "0") {
+                    sign = "+"
+                    firstCount = count.toDouble()
+                    count = DEF_COUNT
+                    binding.count.text = count
                 }
             }
-            binding.equal -> {}
+
+            binding.equal -> {
+                if (firstCount != 0 && count != "0") {
+                    secondCount = count.toDouble()
+                    count = calculator.start(firstCount, secondCount, sign)
+                    binding.count.text = count
+                    textSizeFormating(count)
+                    firstCount = count.toDouble()
+                    secondCount = 0
+                    sign = "+"
+                } else if (firstCount == 0 && count != "0") {
+                    sign = "+"
+                    firstCount = count.toDouble()
+                    count = DEF_COUNT
+                    binding.count.text = count
+                }
+            }
         }
     }
 
     companion object {
         private const val DEF_COUNT = "0"
-        private const val DEF_COUNT_TOKENIZER = "0"
+        private const val DEF_STR = ""
     }
 }

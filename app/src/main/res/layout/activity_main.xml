@@ -325,7 +325,7 @@
 
     <TextView
         android:id="@+id/equal"
-        style="@style/orangeButton"
+        style="@style/greyButton"
         android:text="@string/equal_to"
         app:layout_constraintBottom_toTopOf="@id/bottom_row_five"
         app:layout_constraintEnd_toStartOf="@id/end_column_four"
