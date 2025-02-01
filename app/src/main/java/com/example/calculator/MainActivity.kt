@@ -10,17 +10,18 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.calculator.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    lateinit var countToTokenizer: MutableList<String>
     private val handler = Handler(Looper.getMainLooper())
-    lateinit var count: String
-
+    private lateinit var count: String
+    private lateinit var calculator: Calculator
+    private lateinit var firstCount: Number
+    private lateinit var secondCount: Number
+    private var sign = DEF_STR
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -30,11 +31,12 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        calculator = Calculator()
+        firstCount = 0
+        secondCount = 0
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         val spaceController = SpaceController()
-        countToTokenizer = mutableListOf()
         count = "0"
         binding.count.text = count
         binding.scrollCount.viewTreeObserver.addOnGlobalLayoutListener {
@@ -52,30 +54,25 @@ class MainActivity : AppCompatActivity() {
         fun appendNumber(number: String) {
             if (number.contains(".")) {
                 if (count == "0") {
-                    countToTokenizer.add(number)
                     count += number
                     binding.count.text = count
                 } else if (!count.contains(".")) {
-                    countToTokenizer.add(number)
                     count += number
                     binding.count.text = count
                 }
             } else {
                 if (count == "0") {
-                    countToTokenizer.add(number)
                     count = number
                     binding.count.text = count
-                } else if (count.length <= 14 && !count.contains(".")) { // Ограничение длины
-                    countToTokenizer.add(number)
+                } else if (count.length <= 14 && !count.contains(".")) {
                     count += number
                     binding.count.text = spaceController.start(count)
                     textSizeFormating(count)
                 } else if (count.length <= 25 && count.contains(".")) {
-                    countToTokenizer.add(number)
                     count += number
                     binding.count.text = count
                     textSizeFormating(count)
-                } else Toast.makeText(this, countToTokenizer.toString(), LENGTH_LONG).show()
+                }
             }
         }
 
@@ -120,7 +117,6 @@ class MainActivity : AppCompatActivity() {
             handler.post { runnable.run() }
         }
         binding.percent.setOnClickListener() {
-            countToTokenizer.add("%")
             val runnable = Runnable {
                 exceptionButton(binding.percent)
             }
@@ -156,8 +152,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun cleanCount() {
-        countToTokenizer.clear()
         count = DEF_COUNT
+        firstCount = 0
+        secondCount = 0
         binding.count.text = count
         textSizeFormating(count)
     }
@@ -183,78 +180,122 @@ class MainActivity : AppCompatActivity() {
 
         when (view) {
             binding.ac -> {
-                listActions.forEach { view ->
-                    view.alpha = 1F
-                    view.isEnabled = true
-                }
                 cleanCount()
             }
 
             binding.plusOrMinus -> {
-                if (!countToTokenizer.contains(R.id.plus_or_minus.toString())) {
-                    listActions.forEach { view ->
-                        view.alpha = 0.5F
-                    }
-                    countToTokenizer.add("+/-")
-                    (TODO("ПОДУМАТЬ НАД РЕАЛИЩАЦИЕЙ"))
-                }
+                if (!count.contains("-") && count != "0") {
+                    count = "-".plus(count)
+                } else count.replace("-", "")
             }
 
+
             binding.percent -> {
-                if (!countToTokenizer.contains(R.id.percent.toString())) {
-                    listActions.forEach { view ->
-                        view.alpha = 0.5F
-                        view.isEnabled = false
-                    }
-                    countToTokenizer.add("%")
+                if (firstCount != 0 && count != "0") {
+                    secondCount = count.toDouble()
+                    count = calculator.start(firstCount, secondCount, sign)
+                    binding.count.text = count
+                    textSizeFormating(count)
+                    firstCount = count.toDouble()
+                    secondCount = 0
+                    sign = "%"
+                } else if (firstCount == 0 && count != "0") {
+                    sign = "%"
+                    firstCount = count.toDouble()
+                    count = DEF_COUNT
+                    binding.count.text = count
                 }
             }
 
             binding.divide -> {
-                if (!countToTokenizer.contains(R.id.divide.toString())) {
-                    listActions.forEach { view ->
-                        view.alpha = 0.5F
-                        view.isEnabled = false
-                    }
-                    countToTokenizer.add("/")
+                if (firstCount != 0 && count != "0") {
+                    secondCount = count.toDouble()
+                    count = calculator.start(firstCount, secondCount, sign)
+                    binding.count.text = count
+                    textSizeFormating(count)
+                    firstCount = count.toDouble()
+                    secondCount = 0
+                    sign = "/"
+                } else if (firstCount == 0 && count != "0") {
+                    sign = "/"
+                    firstCount = count.toDouble()
+                    count = DEF_COUNT
+                    binding.count.text = count
                 }
             }
 
             binding.multiply -> {
-                if (!countToTokenizer.contains(R.id.multiply.toString())) {
-                    listActions.forEach { view ->
-                        view.alpha = 0.5F
-                        view.isEnabled = false
-                    }
-                    countToTokenizer.add("*")
+                if (firstCount != 0 && count != "0") {
+                    secondCount = count.toDouble()
+                    count = calculator.start(firstCount, secondCount, sign)
+                    binding.count.text = count
+                    textSizeFormating(count)
+                    firstCount = count.toDouble()
+                    secondCount = 0
+                    sign = "*"
+                } else if (firstCount == 0 && count != "0") {
+                    sign = "*"
+                    firstCount = count.toDouble()
+                    count = DEF_COUNT
+                    binding.count.text = count
                 }
             }
 
             binding.minus -> {
-                if (!countToTokenizer.contains(R.id.minus.toString())) {
-                    listActions.forEach { view ->
-                        view.alpha = 0.5F
-                        view.isEnabled = false
-                    }
-                    countToTokenizer.add("-")
+                if (firstCount != 0 && count != "0") {
+                    secondCount = count.toDouble()
+                    count = calculator.start(firstCount, secondCount, sign)
+                    binding.count.text = count
+                    textSizeFormating(count)
+                    firstCount = count.toDouble()
+                    secondCount = 0
+                    sign = "-"
+                } else if (firstCount == 0 && count != "0") {
+                    sign = "-"
+                    firstCount = count.toDouble()
+                    count = DEF_COUNT
+                    binding.count.text = count
                 }
             }
 
             binding.plus -> {
-                if (!countToTokenizer.contains(R.id.plus.toString()) && countToTokenizer.isNotEmpty()) {
-                    listActions.forEach { view ->
-                        view.alpha = 0.5F
-                        view.isEnabled = false
-                    }
-                    countToTokenizer.add("+")
+                if (firstCount != 0 && count != "0") {
+                    secondCount = count.toDouble()
+                    count = calculator.start(firstCount, secondCount, sign)
+                    binding.count.text = count
+                    textSizeFormating(count)
+                    firstCount = count.toDouble()
+                    secondCount = 0
+                    sign = "+"
+                } else if (firstCount == 0 && count != "0") {
+                    sign = "+"
+                    firstCount = count.toDouble()
+                    count = DEF_COUNT
+                    binding.count.text = count
                 }
             }
 
-            binding.equal -> {}
+            binding.equal -> {
+                if (firstCount != 0 && count != "0") {
+                    secondCount = count.toDouble()
+                    count = calculator.start(firstCount, secondCount, sign)
+                    binding.count.text = count
+                    textSizeFormating(count)
+                    firstCount = count.toDouble()
+                    secondCount = 0
+                    sign = "+"
+                } else if (firstCount == 0 && count != "0") {
+                    sign = "+"
+                    firstCount = count.toDouble()
+                    count = DEF_COUNT
+                    binding.count.text = count
+                }
+            }
         }
     }
 
     companion object {
         private const val DEF_COUNT = "0"
+        private const val DEF_STR = ""
     }
 }
