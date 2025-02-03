@@ -17,10 +17,10 @@ import com.example.calculator.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val handler = Handler(Looper.getMainLooper())
-    private lateinit var count: String
-    private lateinit var calculator: Calculator
-    private lateinit var firstCount: Number
-    private lateinit var secondCount: Number
+    private var count = DEF_COUNT
+    private val calculator = Calculator()
+    private var firstCount = 0.0
+    private var secondCount = 0.0
     private var sign = DEF_STR
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,9 +31,6 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        calculator = Calculator()
-        firstCount = 0
-        secondCount = 0
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val spaceController = SpaceController()
@@ -147,14 +144,17 @@ class MainActivity : AppCompatActivity() {
             handler.post { runnable.run() }
         }
         binding.equal.setOnClickListener() {
-
+            val runnable = Runnable {
+                exceptionButton(binding.equal)
+            }
+            handler.post { runnable.run() }
         }
     }
 
     private fun cleanCount() {
         count = DEF_COUNT
-        firstCount = 0
-        secondCount = 0
+        firstCount = DEF_COUNT_DOUBLE
+        secondCount = DEF_COUNT_DOUBLE
         binding.count.text = count
         textSizeFormating(count)
     }
@@ -166,17 +166,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun exceptionButton(view: View) {
-        val listActions = mutableListOf(
-            binding.percent,
-            binding.divide,
-            binding.multiply,
-            binding.minus,
-            binding.plus
-        )
-
-        if (listActions.contains(view)) {
-            listActions.remove(view)
-        }
 
         when (view) {
             binding.ac -> {
@@ -189,17 +178,16 @@ class MainActivity : AppCompatActivity() {
                 } else count.replace("-", "")
             }
 
-
             binding.percent -> {
-                if (firstCount != 0 && count != "0") {
+                if (firstCount != 0.0 && !(firstCount < 0.0) && count != "0") {
                     secondCount = count.toDouble()
                     count = calculator.start(firstCount, secondCount, sign)
                     binding.count.text = count
                     textSizeFormating(count)
                     firstCount = count.toDouble()
-                    secondCount = 0
+                    secondCount = DEF_COUNT_DOUBLE
                     sign = "%"
-                } else if (firstCount == 0 && count != "0") {
+                } else if (firstCount == 0.0 && count != "0") {
                     sign = "%"
                     firstCount = count.toDouble()
                     count = DEF_COUNT
@@ -208,15 +196,15 @@ class MainActivity : AppCompatActivity() {
             }
 
             binding.divide -> {
-                if (firstCount != 0 && count != "0") {
+                if (firstCount != 0.0 && !(firstCount < 0.0) && count != "0") {
                     secondCount = count.toDouble()
                     count = calculator.start(firstCount, secondCount, sign)
                     binding.count.text = count
                     textSizeFormating(count)
                     firstCount = count.toDouble()
-                    secondCount = 0
+                    secondCount = DEF_COUNT_DOUBLE
                     sign = "/"
-                } else if (firstCount == 0 && count != "0") {
+                } else if (firstCount == 0.0 && count != "0") {
                     sign = "/"
                     firstCount = count.toDouble()
                     count = DEF_COUNT
@@ -225,15 +213,15 @@ class MainActivity : AppCompatActivity() {
             }
 
             binding.multiply -> {
-                if (firstCount != 0 && count != "0") {
+                if (firstCount != 0.0 && !(firstCount < 0.0) && count != "0") {
                     secondCount = count.toDouble()
                     count = calculator.start(firstCount, secondCount, sign)
                     binding.count.text = count
                     textSizeFormating(count)
                     firstCount = count.toDouble()
-                    secondCount = 0
+                    secondCount = DEF_COUNT_DOUBLE
                     sign = "*"
-                } else if (firstCount == 0 && count != "0") {
+                } else if (firstCount == 0.0 && count != "0") {
                     sign = "*"
                     firstCount = count.toDouble()
                     count = DEF_COUNT
@@ -242,15 +230,15 @@ class MainActivity : AppCompatActivity() {
             }
 
             binding.minus -> {
-                if (firstCount != 0 && count != "0") {
+                if (firstCount != 0.0 && !(firstCount < 0.0) && count != "0") {
                     secondCount = count.toDouble()
                     count = calculator.start(firstCount, secondCount, sign)
                     binding.count.text = count
                     textSizeFormating(count)
                     firstCount = count.toDouble()
-                    secondCount = 0
+                    secondCount = DEF_COUNT_DOUBLE
                     sign = "-"
-                } else if (firstCount == 0 && count != "0") {
+                } else if (firstCount == 0.0 && count != "0") {
                     sign = "-"
                     firstCount = count.toDouble()
                     count = DEF_COUNT
@@ -259,15 +247,29 @@ class MainActivity : AppCompatActivity() {
             }
 
             binding.plus -> {
-                if (firstCount != 0 && count != "0") {
+                if (firstCount != 0.0 && !(firstCount < 0.0) && count != "0") {
                     secondCount = count.toDouble()
                     count = calculator.start(firstCount, secondCount, sign)
                     binding.count.text = count
                     textSizeFormating(count)
                     firstCount = count.toDouble()
-                    secondCount = 0
+                    secondCount = DEF_COUNT_DOUBLE
                     sign = "+"
-                } else if (firstCount == 0 && count != "0") {
+                } else if (firstCount != 0.0 && !(firstCount < 0.0) && count != "0") {
+
+                }
+
+//                else if(firstCount != 0.0 && secondCount == 0.0 && sign == DEF_STR){
+//                    secondCount = count.toDouble()
+//                    sign = "+"
+//                    count = calculator.start(firstCount, secondCount, sign)
+//                    binding.count.text = count
+//                    textSizeFormating(count)
+//                    firstCount = count.toDouble()
+//                    secondCount = DEF_COUNT_DOUBLE
+//                    sign = DEF_STR
+//                }
+                else if (firstCount == 0.0 && count != "0") {
                     sign = "+"
                     firstCount = count.toDouble()
                     count = DEF_COUNT
@@ -276,19 +278,14 @@ class MainActivity : AppCompatActivity() {
             }
 
             binding.equal -> {
-                if (firstCount != 0 && count != "0") {
+                if (firstCount != 0.0 && sign != DEF_STR) {
                     secondCount = count.toDouble()
                     count = calculator.start(firstCount, secondCount, sign)
                     binding.count.text = count
                     textSizeFormating(count)
-                    firstCount = count.toDouble()
-                    secondCount = 0
-                    sign = "+"
-                } else if (firstCount == 0 && count != "0") {
-                    sign = "+"
-                    firstCount = count.toDouble()
-                    count = DEF_COUNT
-                    binding.count.text = count
+                    firstCount = DEF_COUNT_DOUBLE
+                    secondCount = DEF_COUNT_DOUBLE
+                    sign = DEF_STR
                 }
             }
         }
@@ -297,5 +294,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val DEF_COUNT = "0"
         private const val DEF_STR = ""
+        private const val DEF_COUNT_DOUBLE = 0.0
     }
 }
