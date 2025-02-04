@@ -1,13 +1,12 @@
 package com.example.calculator
 
 import android.annotation.SuppressLint
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.HorizontalScrollView
-import android.widget.Toast
-import android.widget.Toast.LENGTH_LONG
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -23,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     private var secondCount = 0.0
     private var sign = DEF_STR
     override fun onCreate(savedInstanceState: Bundle?) {
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
@@ -42,18 +42,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        fun textSizeFormating(count: String) {
-            if (count.length >= 7) {
-                binding.count.textSize = 65.0F
-            } else binding.count.textSize = 90.0F
-        }
-
         fun appendNumber(number: String) {
-            if (number.contains(".")) {
+            if (number.contains(POINT)) {
                 if (count == "0") {
                     count += number
                     binding.count.text = count
-                } else if (!count.contains(".")) {
+                } else if (!count.contains(POINT)) {
                     count += number
                     binding.count.text = count
                 }
@@ -61,11 +55,11 @@ class MainActivity : AppCompatActivity() {
                 if (count == "0") {
                     count = number
                     binding.count.text = count
-                } else if (count.length <= 14 && !count.contains(".")) {
+                } else if (count.length <= 14 && !count.contains(POINT)) {
                     count += number
                     binding.count.text = spaceController.start(count)
                     textSizeFormating(count)
-                } else if (count.length <= 25 && count.contains(".")) {
+                } else if (count.length <= 25 && count.contains(POINT)) {
                     count += number
                     binding.count.text = count
                     textSizeFormating(count)
@@ -73,77 +67,83 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.one.setOnClickListener() {
+        binding.one.setOnClickListener {
             appendNumber("1")
         }
-        binding.two.setOnClickListener() {
+        binding.two.setOnClickListener {
             appendNumber("2")
         }
-        binding.three.setOnClickListener() {
+        binding.three.setOnClickListener {
             appendNumber("3")
         }
-        binding.four.setOnClickListener() {
+        binding.four.setOnClickListener {
             appendNumber("4")
         }
-        binding.five.setOnClickListener() {
+        binding.five.setOnClickListener {
             appendNumber("5")
         }
-        binding.six.setOnClickListener() {
+        binding.six.setOnClickListener {
             appendNumber("6")
         }
-        binding.seven.setOnClickListener() {
+        binding.seven.setOnClickListener {
             appendNumber("7")
         }
-        binding.eight.setOnClickListener() {
+        binding.eight.setOnClickListener {
             appendNumber("8")
         }
-        binding.nine.setOnClickListener() {
+        binding.nine.setOnClickListener {
             appendNumber("9")
         }
-        binding.zero.setOnClickListener() {
+        binding.zero.setOnClickListener {
             appendNumber("0")
         }
-        binding.point.setOnClickListener() {
+        binding.point.setOnClickListener {
             appendNumber(".")
         }
 
-        binding.ac.setOnClickListener() {
+        binding.ac.setOnClickListener {
             val runnable = Runnable {
                 exceptionButton(binding.ac)
             }
             handler.post { runnable.run() }
         }
-        binding.percent.setOnClickListener() {
+        binding.percent.setOnClickListener {
             val runnable = Runnable {
                 exceptionButton(binding.percent)
             }
             handler.post { runnable.run() }
         }
-        binding.divide.setOnClickListener() {
+        binding.divide.setOnClickListener {
             val runnable = Runnable {
                 exceptionButton(binding.divide)
             }
             handler.post { runnable.run() }
         }
-        binding.multiply.setOnClickListener() {
+        binding.multiply.setOnClickListener {
             val runnable = Runnable {
                 exceptionButton(binding.multiply)
             }
             handler.post { runnable.run() }
         }
-        binding.minus.setOnClickListener() {
+        binding.minus.setOnClickListener {
             val runnable = Runnable {
                 exceptionButton(binding.minus)
             }
             handler.post { runnable.run() }
         }
-        binding.plus.setOnClickListener() {
+        binding.plus.setOnClickListener {
             val runnable = Runnable {
                 exceptionButton(binding.plus)
             }
             handler.post { runnable.run() }
         }
-        binding.equal.setOnClickListener() {
+        binding.plusOrMinus.setOnClickListener {
+            val runnable = Runnable {
+                exceptionButton(binding.plusOrMinus)
+            }
+            handler.post { runnable.run() }
+        }
+        binding.equal.setOnClickListener {
             val runnable = Runnable {
                 exceptionButton(binding.equal)
             }
@@ -173,121 +173,100 @@ class MainActivity : AppCompatActivity() {
             }
 
             binding.plusOrMinus -> {
-                if (!count.contains("-") && count != "0") {
-                    count = "-".plus(count)
-                } else count.replace("-", "")
+                signChoosing(PLUS_OR_MINUS)
             }
 
             binding.percent -> {
-                if (firstCount != 0.0 && !(firstCount < 0.0) && count != "0") {
-                    secondCount = count.toDouble()
-                    count = calculator.start(firstCount, secondCount, sign)
-                    binding.count.text = count
-                    textSizeFormating(count)
-                    firstCount = count.toDouble()
-                    secondCount = DEF_COUNT_DOUBLE
-                    sign = "%"
-                } else if (firstCount == 0.0 && count != "0") {
-                    sign = "%"
-                    firstCount = count.toDouble()
-                    count = DEF_COUNT
-                    binding.count.text = count
-                }
+                signChoosing(PERCENT)
             }
 
             binding.divide -> {
-                if (firstCount != 0.0 && !(firstCount < 0.0) && count != "0") {
-                    secondCount = count.toDouble()
-                    count = calculator.start(firstCount, secondCount, sign)
-                    binding.count.text = count
-                    textSizeFormating(count)
-                    firstCount = count.toDouble()
-                    secondCount = DEF_COUNT_DOUBLE
-                    sign = "/"
-                } else if (firstCount == 0.0 && count != "0") {
-                    sign = "/"
-                    firstCount = count.toDouble()
-                    count = DEF_COUNT
-                    binding.count.text = count
-                }
+                signChoosing(DIVIDE)
             }
 
             binding.multiply -> {
-                if (firstCount != 0.0 && !(firstCount < 0.0) && count != "0") {
-                    secondCount = count.toDouble()
-                    count = calculator.start(firstCount, secondCount, sign)
-                    binding.count.text = count
-                    textSizeFormating(count)
-                    firstCount = count.toDouble()
-                    secondCount = DEF_COUNT_DOUBLE
-                    sign = "*"
-                } else if (firstCount == 0.0 && count != "0") {
-                    sign = "*"
-                    firstCount = count.toDouble()
-                    count = DEF_COUNT
-                    binding.count.text = count
-                }
+                signChoosing(MULTIPLY)
             }
 
             binding.minus -> {
-                if (firstCount != 0.0 && !(firstCount < 0.0) && count != "0") {
-                    secondCount = count.toDouble()
-                    count = calculator.start(firstCount, secondCount, sign)
-                    binding.count.text = count
-                    textSizeFormating(count)
-                    firstCount = count.toDouble()
-                    secondCount = DEF_COUNT_DOUBLE
-                    sign = "-"
-                } else if (firstCount == 0.0 && count != "0") {
-                    sign = "-"
-                    firstCount = count.toDouble()
-                    count = DEF_COUNT
-                    binding.count.text = count
-                }
+                signChoosing(MINUS)
             }
 
             binding.plus -> {
-                if (firstCount != 0.0 && !(firstCount < 0.0) && count != "0") {
-                    secondCount = count.toDouble()
-                    count = calculator.start(firstCount, secondCount, sign)
-                    binding.count.text = count
-                    textSizeFormating(count)
-                    firstCount = count.toDouble()
-                    secondCount = DEF_COUNT_DOUBLE
-                    sign = "+"
-                } else if (firstCount != 0.0 && !(firstCount < 0.0) && count != "0") {
-
-                }
-
-//                else if(firstCount != 0.0 && secondCount == 0.0 && sign == DEF_STR){
-//                    secondCount = count.toDouble()
-//                    sign = "+"
-//                    count = calculator.start(firstCount, secondCount, sign)
-//                    binding.count.text = count
-//                    textSizeFormating(count)
-//                    firstCount = count.toDouble()
-//                    secondCount = DEF_COUNT_DOUBLE
-//                    sign = DEF_STR
-//                }
-                else if (firstCount == 0.0 && count != "0") {
-                    sign = "+"
-                    firstCount = count.toDouble()
-                    count = DEF_COUNT
-                    binding.count.text = count
-                }
+                signChoosing(PLUS)
             }
 
             binding.equal -> {
-                if (firstCount != 0.0 && sign != DEF_STR) {
-                    secondCount = count.toDouble()
-                    count = calculator.start(firstCount, secondCount, sign)
-                    binding.count.text = count
-                    textSizeFormating(count)
-                    firstCount = DEF_COUNT_DOUBLE
-                    secondCount = DEF_COUNT_DOUBLE
-                    sign = DEF_STR
-                }
+                signChoosing(EQUAL)
             }
+        }
+    }
+
+    private fun signChoosing(signIn: String) {
+        if (signIn in listOf(MULTIPLY, DIVIDE, PLUS, MINUS)) {
+            if (firstCount != DEF_COUNT_DOUBLE && count != DEF_COUNT && sign != DEF_STR && !count.endsWith(
+                    POINT
+                )
+            ) {
+                secondCount = count.toDouble()
+                count = calculator.start(firstCount, secondCount, sign)
+                binding.count.text = count
+                textSizeFormating(count)
+                firstCount = count.toDouble()
+                secondCount = DEF_COUNT_DOUBLE
+                sign = signIn
+            } else if (firstCount == DEF_COUNT_DOUBLE && count != DEF_COUNT && !count.endsWith(
+                    POINT
+                )
+            ) {
+                sign = signIn
+                firstCount = count.toDouble()
+                count = DEF_COUNT
+                textSizeFormating(count)
+                binding.count.text = count
+            }
+        } else if (signIn == PERCENT) {
+            if (firstCount != DEF_COUNT_DOUBLE && !(firstCount < DEF_COUNT_DOUBLE) && count != DEF_COUNT && !count.endsWith(
+                    POINT
+                )
+            ) {
+                secondCount = count.toDouble()
+                count = calculator.start(firstCount, secondCount, sign)
+                binding.count.text = count
+                textSizeFormating(count)
+                firstCount = count.toDouble()
+                secondCount = DEF_COUNT_DOUBLE
+                sign = signIn
+            } else if (firstCount == DEF_COUNT_DOUBLE && count != DEF_COUNT && !count.endsWith(
+                    POINT
+                )
+            ) {
+                sign = signIn
+                firstCount = count.toDouble()
+                count = DEF_COUNT
+                textSizeFormating(count)
+                binding.count.text = count
+            }
+        } else if (signIn == EQUAL) {
+            if (firstCount != DEF_COUNT_DOUBLE && sign != DEF_STR && !count.endsWith(
+                    POINT
+                )
+            ) {
+                secondCount = count.toDouble()
+                count = calculator.start(firstCount, secondCount, sign)
+                binding.count.text = count
+                textSizeFormating(count)
+                firstCount = DEF_COUNT_DOUBLE
+                secondCount = DEF_COUNT_DOUBLE
+                sign = DEF_STR
+            }
+        } else if (signIn == PLUS_OR_MINUS) {
+            if (!count.startsWith("-") && count != "0") {
+                count = "-$count"
+            } else if (count.startsWith("-")) {
+                count = count.trimStart('-')
+            }
+            binding.count.text = count
         }
     }
 
@@ -295,5 +274,13 @@ class MainActivity : AppCompatActivity() {
         private const val DEF_COUNT = "0"
         private const val DEF_STR = ""
         private const val DEF_COUNT_DOUBLE = 0.0
+        private const val PLUS = "+"
+        private const val MINUS = "-"
+        private const val MULTIPLY = "*"
+        private const val DIVIDE = "/"
+        private const val PERCENT = "%"
+        private const val POINT = "."
+        private const val EQUAL = "="
+        private const val PLUS_OR_MINUS = "+-"
     }
 }

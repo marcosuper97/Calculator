@@ -306,7 +306,9 @@
     <TextView
         android:id="@+id/zero"
         style="@style/darkGreyButton"
-        android:background="@drawable/zero_back"
+        android:background="@drawable/zero_ripple"
+        android:clickable="true"
+        android:focusable="true"
         android:text="0"
         app:layout_constraintBottom_toTopOf="@id/bottom_row_five"
         app:layout_constraintEnd_toStartOf="@id/end_column_two"
@@ -320,8 +322,10 @@
         android:text="@string/point"
         app:layout_constraintBottom_toTopOf="@id/bottom_row_five"
         app:layout_constraintEnd_toStartOf="@id/end_column_three"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@id/start_column_three"
-        app:layout_constraintTop_toBottomOf="@id/top_row_five" />
+        app:layout_constraintTop_toBottomOf="@id/top_row_five"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/equal"
@@ -334,24 +338,25 @@
 
     <HorizontalScrollView
         android:id="@+id/scrollCount"
-        android:layout_width = "0dp"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintVertical_weight="1"
-        app:layout_constraintHorizontal_weight="1"
+        android:foregroundGravity=""
         android:scrollbars="none"
-        app:layout_constraintTop_toBottomOf="@id/top_result"
         app:layout_constraintBottom_toTopOf="@id/bottom_result"
-        app:layout_constraintStart_toEndOf="@id/start_column_one"
         app:layout_constraintEnd_toStartOf="@id/end_result"
-        android:foregroundGravity="">
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintStart_toEndOf="@id/start_column_one"
+        app:layout_constraintTop_toBottomOf="@id/top_result"
+        app:layout_constraintVertical_weight="1">
+
         <TextView
             android:id="@+id/count"
             style="@style/resultStyle"
-            android:layout_height="match_parent"
             android:layout_width="wrap_content"
-            tools:text = "1"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
             android:scrollHorizontally="true"
-            android:layout_gravity="end"/>
+            tools:text="1" />
     </HorizontalScrollView>
 
 

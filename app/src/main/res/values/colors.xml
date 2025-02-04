@@ -14,4 +14,8 @@
 
     <color name="pressed_button_text">#CAC5C4</color>
     <color name="pressed_button_tint">#F6F5F4</color>
+
+    <color name="ripple_dark_grey">#7E7777</color>
+    <color name="ripple_orange_key">#FBECBB</color>
+
 </resources>
