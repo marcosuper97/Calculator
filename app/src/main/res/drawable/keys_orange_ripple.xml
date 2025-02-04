@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/ripple_orange_key"> <!-- Цвет рипл-эффекта -->
+    <item>
+        <shape xmlns:android="http://schemas.android.com/apk/res/android"
+            android:shape="oval"> <!-- Тип фигуры: oval (эллипс или круг) -->
+            <solid android:color="@color/orange" /> <!-- Замените на нужный цвет -->
+        </shape>
+    </item>
+</ripple>

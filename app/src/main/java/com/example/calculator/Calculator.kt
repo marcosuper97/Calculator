@@ -1,23 +1,30 @@
 package com.example.calculator
 
 class Calculator {
-    fun start(firstCount: Number, secondCount: Number, signIn: String): String {
-        val first = firstCount.toDouble()
-        val second = secondCount.toDouble()
+    fun start(firstCount: Double, secondCount: Double, signIn: String): String {
+        val first = firstCount
+        val second = secondCount
 
-        return when (signIn) {
-            "%" -> (second / first * 100).toString()
-            "*" -> (second * first).toString()
-            "+" -> (first + second).toString()
-            "-" -> (first - second).toString()
+        val result = when (signIn) {
+            "%" -> if (second == 0.0 || first == 0.0) {
+                return "404.404"
+            } else {
+                second / first * 100
+            }
+
+            "*" -> second * first
+            "+" -> first + second
+            "-" -> first - second
             "/" -> {
-                if (second == 0.0) {
-                    "ОШИБКА: деление на ноль"
+                if (second == 0.0 || first == 0.0) {
+                    return "404.404"
                 } else {
-                    (first / second).toString()
+                    first / second
                 }
             }
-            else -> "eRrOrr :)"
+
+            else -> return "0.0"
         }
+        return "%.6f".format(result).trimEnd('0').trimEnd('.').trimEnd(',')
     }
 }
