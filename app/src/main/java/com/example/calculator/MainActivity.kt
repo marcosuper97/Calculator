@@ -1,10 +1,6 @@
 package com.example.calculator
-
-import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.widget.HorizontalScrollView
 import androidx.activity.enableEdgeToEdge
@@ -15,12 +11,33 @@ import com.example.calculator.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private val handler = Handler(Looper.getMainLooper())
     private var count = DEF_COUNT
     private val calculator = Calculator()
     private var firstCount = 0.0
     private var secondCount = 0.0
     private var sign = DEF_STR
+    private val spaceController = SpaceController()
+    private val buttonsWithNumbers = mapOf(
+        binding.zero to { appendNumber("0") },
+        binding.one to { appendNumber("1") },
+        binding.two to { appendNumber("2") },
+        binding.three to { appendNumber("3") },
+        binding.four to {appendNumber("4")},
+        binding.five to {appendNumber("5")},
+        binding.six to {appendNumber("6")},
+        binding.seven to {appendNumber("7")},
+        binding.eight to {appendNumber("8")},
+        binding.nine to {appendNumber("9")},
+        binding.point to {appendNumber(".")},
+        binding.ac to {cleanCount()},
+        binding.percent to {},
+        binding.divide to {},
+        binding.multiply to {},
+        binding.plus to {},
+        binding.minus to {},
+        binding.equal to {},
+        binding.plusOrMinus to {}
+    )
     override fun onCreate(savedInstanceState: Bundle?) {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         super.onCreate(savedInstanceState)
@@ -33,7 +50,6 @@ class MainActivity : AppCompatActivity() {
         }
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val spaceController = SpaceController()
         count = "0"
         binding.count.text = count
         binding.scrollCount.viewTreeObserver.addOnGlobalLayoutListener {
@@ -67,9 +83,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.one.setOnClickListener {
-            appendNumber("1")
-        }
+        binding.one.setOnClickListener(this::onButtonClicked)
         binding.two.setOnClickListener {
             appendNumber("2")
         }
@@ -102,52 +116,28 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.ac.setOnClickListener {
-            val runnable = Runnable {
                 exceptionButton(binding.ac)
-            }
-            handler.post { runnable.run() }
         }
         binding.percent.setOnClickListener {
-            val runnable = Runnable {
                 exceptionButton(binding.percent)
-            }
-            handler.post { runnable.run() }
         }
         binding.divide.setOnClickListener {
-            val runnable = Runnable {
                 exceptionButton(binding.divide)
-            }
-            handler.post { runnable.run() }
         }
         binding.multiply.setOnClickListener {
-            val runnable = Runnable {
                 exceptionButton(binding.multiply)
-            }
-            handler.post { runnable.run() }
         }
         binding.minus.setOnClickListener {
-            val runnable = Runnable {
                 exceptionButton(binding.minus)
-            }
-            handler.post { runnable.run() }
         }
         binding.plus.setOnClickListener {
-            val runnable = Runnable {
                 exceptionButton(binding.plus)
-            }
-            handler.post { runnable.run() }
         }
         binding.plusOrMinus.setOnClickListener {
-            val runnable = Runnable {
                 exceptionButton(binding.plusOrMinus)
-            }
-            handler.post { runnable.run() }
         }
         binding.equal.setOnClickListener {
-            val runnable = Runnable {
                 exceptionButton(binding.equal)
-            }
-            handler.post { runnable.run() }
         }
     }
 
@@ -200,6 +190,36 @@ class MainActivity : AppCompatActivity() {
                 signChoosing(EQUAL)
             }
         }
+    }
+
+    private fun appendNumber(number: String) {
+        if (number.contains(POINT)) {
+            if (count == "0") {
+                count += number
+                binding.count.text = count
+            } else if (!count.contains(POINT)) {
+                count += number
+                binding.count.text = count
+            }
+        } else {
+            if (count == "0") {
+                count = number
+                binding.count.text = count
+            } else if (count.length <= 14 && !count.contains(POINT)) {
+                count += number
+                binding.count.text = spaceController.start(count)
+                textSizeFormating(count)
+            } else if (count.length <= 25 && count.contains(POINT)) {
+                count += number
+                binding.count.text = count
+                textSizeFormating(count)
+            }
+        }
+    }
+
+    private fun onButtonClicked(view: View) {
+        val action = buttonsWithNumbers[view]
+        action?.invoke()
     }
 
     private fun signChoosing(signIn: String) {
